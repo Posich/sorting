@@ -52,7 +52,14 @@ pub trait Sortable where Self: IntoIterator,
     }
 }
 
-impl<T> Sortable for Vec<T> where T: Comparable {}
+// Old impl to test on Vec's
+//impl<T> Sortable for Vec<T> where T: Comparable {}
+
+// This generic impl should give the Sortable trait to just about any collection
+// as long as Comparable is implemented for <T>.  Well, it works on Vec, anyway...
+impl<T> Sortable for T where T: std::iter::IntoIterator,
+                             T: std::iter::FromIterator<<T as std::iter::IntoIterator>::Item>,
+                             <T as std::iter::IntoIterator>::Item: Comparable, {}
 
 struct IntoIter<T: Comparable> {
     values: VecDeque<T>,
@@ -117,20 +124,6 @@ impl<T> Element<T> where T: Comparable {
                 Some(more) => more.add(val),
                 None => self.greater = Some(Box::new(Element::new(val))),
             }
-        }
-    }
-
-    fn greatest(&self) -> &Element<T> {
-        match &self.greater {
-            Some(more) => { more.greatest() },
-            None => &self,
-        }
-    }
-
-    fn leastest(&self) -> &Element<T> {
-        match &self.lesser {
-            Some(less) => { less.leastest() },
-            None => &self,
         }
     }
 }
